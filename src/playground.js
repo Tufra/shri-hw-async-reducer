@@ -44,7 +44,7 @@
 
     Object.freeze(global.Homework);
 })(typeof window === 'undefined' ? global : window);
-
+/*
 const { AsyncArray, add, subtract, multiply, divide, less, equal, lessOrEqual } = Homework;
 
 const a = new AsyncArray([1, 2, 3]);
@@ -88,14 +88,52 @@ equal(1, 1, (result) => console.log('результат операции РАВ�
 
 lessOrEqual(12, 19, (result) => console.log('результат операции МЕНЬШЕ ИЛИ РАВНО', result));
 
-const asyncArray = new Homework.AsyncArray([1, 2, 3, 4]);
+const asyncArray = new Homework.AsyncArray([1, 2, 0, 4]);
 const reducerSum = (acc, curr, i, src, cb) => Homework.add(acc, curr, cb);
-
-reduce(asyncArray, reducerSum, 0, (res) => {
-    console.log(res); // 10
+reduce(asyncArray, reducerSum, 1, (res) => {
+    console.log('reduce: ' + res); // 10
 });
 
 function reduce(asyncArray, fn, initialValue, cb) {
     // добро пожаловать в Callback Hell
     // твой побег начинается прямо сейчас...
+
+    let result = initialValue
+
+    let getLength = new Promise((resolve) => {
+        asyncArray.length((len) => {
+            resolve(len)
+        })
+    })
+
+    getLength.then(
+        async (len) => {
+            console.log('len: ' + len)
+            for (let i = 0; i < len; i++) {
+                let getCurr = new Promise((resolve, reject) => {
+                    asyncArray.get(i, (elem) => {
+                        resolve(elem)
+                    })
+                })
+                let oper = getCurr.then((elem) => {
+                    console.log(`elem: ${elem}`)
+                    return new Promise(resolve => {
+                        fn(result, elem, i, asyncArray, (operRes) => {
+                            result = operRes
+                            resolve()
+                        })
+                    })
+                })
+                oper.catch((err) => {
+                    console.log(err)
+                })
+                await oper
+            }
+        }
+    ).then(() => {
+        cb(result)
+    })
+
+
 }
+*/
