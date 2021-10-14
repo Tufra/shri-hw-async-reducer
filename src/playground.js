@@ -88,52 +88,82 @@ equal(1, 1, (result) => console.log('результат операции РАВ�
 
 lessOrEqual(12, 19, (result) => console.log('результат операции МЕНЬШЕ ИЛИ РАВНО', result));
 
-const asyncArray = new Homework.AsyncArray([1, 2, 0, 4]);
+const asyncArray = new Homework.AsyncArray([1, 2, 3, 4]);
 const reducerSum = (acc, curr, i, src, cb) => Homework.add(acc, curr, cb);
-reduce(asyncArray, reducerSum, 1, (res) => {
+reduce(asyncArray, reducerSum, 0, (res) => {
     console.log('reduce: ' + res); // 10
 });
 
 function reduce(asyncArray, fn, initialValue, cb) {
-    // добро пожаловать в Callback Hell
-    // твой побег начинается прямо сейчас...
-
-    let result = initialValue
-
-    let getLength = new Promise((resolve) => {
-        asyncArray.length((len) => {
-            resolve(len)
-        })
-    })
-
-    getLength.then(
-        async (len) => {
-            console.log('len: ' + len)
-            for (let i = 0; i < len; i++) {
-                let getCurr = new Promise((resolve, reject) => {
-                    asyncArray.get(i, (elem) => {
-                        resolve(elem)
-                    })
-                })
-                let oper = getCurr.then((elem) => {
-                    console.log(`elem: ${elem}`)
-                    return new Promise(resolve => {
-                        fn(result, elem, i, asyncArray, (operRes) => {
-                            result = operRes
-                            resolve()
-                        })
-                    })
-                })
-                oper.catch((err) => {
-                    console.log(err)
-                })
-                await oper
-            }
-        }
-    ).then(() => {
-        cb(result)
-    })
-
 
 }
+
+// добро пожаловать в Callback Hell
+// твой побег начинается прямо сейчас...
+
+let result = initialValue
+
+let getLength = new Promise((resolve) => {
+    asyncArray.length((len) => {
+        resolve(len)
+    })
+})
+
+getLength.then(
+    (len) => {
+        console.log('len: ' + len)
+        let i = 0
+        let notEOA = false
+        let isLess = new Promise((resolve) => {
+            less(i, len, (val) => {
+                notEOA = val
+                console.log(notEOA)
+                resolve()
+            })
+        })
+        isLess.then(() => {
+            return new Promise(async resolve => {
+                while(notEOA) {
+                    let getCurr = new Promise((resolve) => {
+                        asyncArray.get(i, (elem) => {
+                            resolve(elem)
+                        })
+                    })
+                    let oper = getCurr.then((elem) => {
+                        console.log(`elem: ${elem}`)
+                        return new Promise((resolve) => {
+                            fn(result, elem, i, asyncArray, (operRes) => {
+                                result = operRes
+                                resolve()
+                            })
+                        })
+                    })
+                    oper.catch((err) => {
+                        console.log(err)
+                    })
+
+                    let inc = new Promise((resolve) => {
+                        add(i, 1, (val) => {
+                            i = val
+                            resolve(i)
+                        })
+                    })
+                    let isLess = inc.then((i) => {
+                        return new Promise((resolve) => {
+                            less(i, len, (val) => {
+                                notEOA = val
+                                resolve()
+                            })
+                        })
+                    })
+                    await Promise.all([oper, isLess])
+                }
+                resolve()
+            })
+        }).then(() => {
+            cb(result)
+        })
+
+    }
+)
 */

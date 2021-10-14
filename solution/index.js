@@ -11,47 +11,63 @@ module.exports = function (Homework) {
                 resolve(len)
             })
         })
+
         getLength.then(
-            async (len) => {
+            (len) => {
                 //console.log('len: ' + len)
-                for (let i = 0; i < len; i++) {
-                    let getCurr = new Promise((resolve, reject) => {
-                        array.get(i, (elem) => {
-                            resolve(elem)
-                        })
+                let i = 0
+                let notEOA = false
+                let isLess = new Promise((resolve) => {
+                    Homework.less(i, len, (val) => {
+                        notEOA = val
+                        //console.log(notEOA)
+                        resolve()
                     })
-                    getCurr.catch((err) => {
-                        console.log(err)
-                    })
-                    let oper = getCurr.then((elem) => {
-                            //console.log(`elem: ${elem}`)
-                            return new Promise(resolve => {
-                                fn(result, elem, i, array, (operRes) => {
-                                    result = operRes
-                                    resolve()
+                })
+                isLess.then(() => {
+                    return new Promise(async resolve => {
+                        while(notEOA) {
+                            let getCurr = new Promise((resolve) => {
+                                array.get(i, (elem) => {
+                                    resolve(elem)
                                 })
                             })
-                        },
-                        (err) => {
-                            console.log(err)
+                            let oper = getCurr.then((elem) => {
+                                //console.log(`elem: ${elem}`)
+                                return new Promise((resolve) => {
+                                    fn(result, elem, i, array, (operRes) => {
+                                        result = operRes
+                                        resolve()
+                                    })
+                                })
+                            })
+                            oper.catch((err) => {
+                                console.log(err)
+                            })
+
+                            let inc = new Promise((resolve) => {
+                                Homework.add(i, 1, (val) => {
+                                    i = val
+                                    resolve(i)
+                                })
+                            })
+                            let isLess = inc.then((i) => {
+                                return new Promise((resolve) => {
+                                    Homework.less(i, len, (val) => {
+                                        notEOA = val
+                                        resolve()
+                                    })
+                                })
+                            })
+                            await Promise.all([oper, isLess])
                         }
-                    )
-                    oper.catch((err) => {
-                        console.log(err)
+                        resolve()
                     })
-                    await oper
-                }
-            },
-            (err) => {
-                console.log(err)
-            }
-        ).then(() => {
-                cb(result)
-            },
-            (err) => {
-                console.log(err)
+                }).then(() => {
+                    cb(result)
+                })
+
             }
         )
-
     }
 }
