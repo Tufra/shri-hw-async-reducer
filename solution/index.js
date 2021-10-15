@@ -1,9 +1,7 @@
 module.exports = function (Homework) {
 
     return (array, fn, initialValue, cb) => {
-        // добро пожаловать в Callback Hell
-        // твой побег начинается прямо сейчас...
-
+        
         let result = initialValue
 
         let getLength = new Promise((resolve) => {
@@ -47,7 +45,7 @@ module.exports = function (Homework) {
                                 })
                             })
                             let oper = getCurr.then((elem) => {
-                                
+
                                 return new Promise((resolve) => {
                                     fn(result, elem, i, array, (operRes) => {
                                         result = operRes
