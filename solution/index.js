@@ -14,7 +14,7 @@ module.exports = function (Homework) {
 
         getLength.then(
             async (len) => {
-                //console.log('len: ' + len)
+
                 let i
                 let zero = new Promise((resolve) => {
                     Homework.subtract(len, len, (res) => {
@@ -34,7 +34,7 @@ module.exports = function (Homework) {
                 let isLess = new Promise((resolve) => {
                     Homework.less(i, len, (val) => {
                         notEOA = val
-                        //console.log(notEOA)
+
                         resolve()
                     })
                 })
@@ -47,7 +47,7 @@ module.exports = function (Homework) {
                                 })
                             })
                             let oper = getCurr.then((elem) => {
-                                //console.log(`elem: ${elem}`)
+                                
                                 return new Promise((resolve) => {
                                     fn(result, elem, i, array, (operRes) => {
                                         result = operRes
