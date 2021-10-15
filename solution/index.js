@@ -13,10 +13,24 @@ module.exports = function (Homework) {
         })
 
         getLength.then(
-            (len) => {
+            async (len) => {
                 //console.log('len: ' + len)
-                let i = 0
-                let notEOA = false
+                let i
+                let zero = new Promise((resolve) => {
+                    Homework.subtract(len, len, (res) => {
+                        i = res
+                        resolve()
+                    })
+                })
+                await zero
+                let notEOA
+                let fls = new Promise(resolve => {
+                    Homework.less(len, i, (res) => {
+                        notEOA = res
+                        resolve()
+                    })
+                })
+                await fls
                 let isLess = new Promise((resolve) => {
                     Homework.less(i, len, (val) => {
                         notEOA = val
